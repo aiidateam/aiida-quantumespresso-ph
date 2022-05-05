@@ -1,0 +1,15 @@
+default_inputs:
+    clean_workdir: True
+    ph_base:
+        ph:
+            parameters:
+                INPUTPH:
+                    epsil: True
+default_protocol: moderate
+protocols:
+    moderate:
+        description: 'Protocol to perform a dynamical matrix calculation at normal precision at moderate computational cost.'
+    precise:
+        description: 'Protocol to perform a dynamical matrix calculation at high precision at higher computational cost.'
+    fast:
+        description: 'Protocol to perform a dynamical matrix calculation at low precision at minimal computational cost for testing purposes.'
