@@ -2,7 +2,7 @@
 """Workchain to compute the phonon dispersion from the raw initial unrelaxed structure."""
 from aiida import orm
 from aiida.common.extendeddicts import AttributeDict
-from aiida.engine import ToContext, WorkChain, calcfunction, if_
+from aiida.engine import ToContext, WorkChain, calcfunction
 from aiida.plugins import CalculationFactory, WorkflowFactory
 from aiida.tools.data.array.kpoints import get_explicit_kpoints_path
 
@@ -94,6 +94,9 @@ class PhInterpolateWorkChain(WorkChain):
 
 @calcfunction
 def seekpath_get_explicit_kpoints_path(structure, parameters):
-    # pylint: disable=invalid-name
-    """Use the SeekPath wrapper to automatically generate the KpointsData path for the given structure and parameters."""
+    """Use the SeekPath wrapper to automatically generate...
+
+    the KpointsData path for the given structure and parameters.
+    """
+
     return get_explicit_kpoints_path(structure, **parameters.get_dict())

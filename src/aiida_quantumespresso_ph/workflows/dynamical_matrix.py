@@ -2,10 +2,8 @@
 """Workchain to compute the phonon dispersion from the raw initial unrelaxed structure."""
 from aiida import orm
 from aiida.common.extendeddicts import AttributeDict
-from aiida.engine import ToContext, WorkChain, calcfunction, if_
-from aiida.engine.processes.workchains import workchain
+from aiida.engine import ToContext, WorkChain, if_
 from aiida.plugins import CalculationFactory, WorkflowFactory
-from aiida.tools.data.array.kpoints import get_explicit_kpoints_path
 from aiida_quantumespresso.workflows.protocols.utils import ProtocolMixin
 
 PhBaseWorkChain = WorkflowFactory('quantumespresso.ph.base')
