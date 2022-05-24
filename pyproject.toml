@@ -41,10 +41,15 @@ tests = [
     'pytest>=6.0',
 ]
 
+[project.entry-points.'aiida.calculations']
+'quantumespresso_ph.distribute_qpoints' = 'aiida_quantumespresso_ph.calculations.functions.distribute_qpoints:distribute_qpoints'
+'quantumespresso_ph.recollect_qpoints' = 'aiida_quantumespresso_ph.calculations.functions.recollect_qpoints:recollect_qpoints'
+
 [project.entry-points.'aiida.workflows']
 'quantumespresso.dynamical_matrix' = 'aiida_quantumespresso_ph.workflows.dynamical_matrix:DynamicalMatrixWorkChain'
 'quantumespresso.ph_interpolate' = 'aiida_quantumespresso_ph.workflows.ph_interpolate:PhInterpolateWorkChain'
-
+'quantumespresso_ph.ph.main' = 'aiida_quantumespresso_ph.workflows.ph.main:PhWorkChain'
+'quantumespresso_ph.ph.parallelize_qpoints' = 'aiida_quantumespresso_ph.workflows.ph.parallelize_qpoints:PhParallelizeQpointsWorkChain'
 
 [tool.flit.module]
 name = 'aiida_quantumespresso_ph'
@@ -74,6 +79,13 @@ ignore = [
     'D202',
     'D203',
     'D213'
+]
+
+[tool.pylint.basic]
+good-names = [
+    'PhCalculation',
+    'KpointsData',
+    'StructureData',
 ]
 
 [tool.pylint.master]
