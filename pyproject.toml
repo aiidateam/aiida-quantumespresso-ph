@@ -41,6 +41,11 @@ tests = [
     'pytest>=6.0',
 ]
 
+[project.entry-points.'aiida.workflows']
+'quantumespresso.dynamical_matrix' = 'aiida_quantumespresso_ph.workflows.dynamical_matrix:DynamicalMatrixWorkChain'
+'quantumespresso.ph_interpolate' = 'aiida_quantumespresso_ph.workflows.ph_interpolate:PhInterpolateWorkChain'
+
+
 [tool.flit.module]
 name = 'aiida_quantumespresso_ph'
 
