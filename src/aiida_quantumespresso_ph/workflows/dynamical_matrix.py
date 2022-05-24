@@ -6,8 +6,6 @@ from aiida.engine import ToContext, WorkChain, if_
 from aiida.plugins import CalculationFactory, WorkflowFactory
 from aiida_quantumespresso.workflows.protocols.utils import ProtocolMixin
 
-from aiida_quantumespresso.common.types import RelaxType
-
 PwRelaxWorkChain = WorkflowFactory('quantumespresso.pw.relax')
 PhBaseWorkChain = WorkflowFactory('quantumespresso.ph.base')
 PwBaseWorkChain = WorkflowFactory('quantumespresso.pw.base')
@@ -47,17 +45,18 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
             cls.results,
         )
 
-        spec.output('output_structure', valid_type=orm.StructureData,
+        spec.output(
+            'output_structure',
+            valid_type=orm.StructureData,
             required=False,
-            help='The structure for which the dynamical matrix is computed.')
+            help='The structure for which the dynamical matrix is computed.'
+        )
         spec.output('pw_output_parameters', valid_type=orm.Dict)
         spec.output('ph_output_parameters', valid_type=orm.Dict)
         spec.output('ph_retrieved', valid_type=orm.FolderData)
 
-        spec.exit_code(401, 'ERROR_SUB_PROCESS_FAILED_RELAX',
-            message='The PwRelaxWorkChain sub process failed')
+        spec.exit_code(401, 'ERROR_SUB_PROCESS_FAILED_RELAX', message='The PwRelaxWorkChain sub process failed')
 
-        
     @classmethod
     def get_protocol_filepath(cls):
         """Return ``pathlib.Path`` to the ``.yaml`` file that defines the protocols."""
@@ -82,11 +81,10 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         inputs = cls.get_protocol_inputs(protocol, overrides)
 
         args = (pw_code, structure, protocol)
-        relax = PwRelaxWorkChain.get_builder_from_protocol( *args, overrides=inputs.get('relax', None), **kwargs)
+        relax = PwRelaxWorkChain.get_builder_from_protocol(*args, overrides=inputs.get('relax', None), **kwargs)
         relax.pop('structure', None)
         relax.pop('clean_workdir', None)
         relax.pop('base_final_scf', None)
-
 
         args = (ph_code, None, protocol)
         ph_base = PhBaseWorkChain.get_builder_from_protocol(*args, overrides=inputs.get('ph_base', None), **kwargs)
@@ -94,7 +92,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
 
         builder = cls.get_builder()
         builder.structure = structure
-        builder.relax = relax #pw_base = pw_base
+        builder.relax = relax  #pw_base = pw_base
         builder.ph_base = ph_base
         builder.clean_workdir = orm.Bool(inputs['clean_workdir'])
 
@@ -123,7 +121,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         self.report(f'launching PwRelaxWorkChain<{running.pk}>')
 
         return ToContext(workchain_relax=running)
-    
+
     def inspect_relax(self):
         """Verify that the PwRelaxWorkChain finished successfully."""
         workchain = self.ctx.workchain_relax
@@ -132,13 +130,10 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
             self.report(f'PwRelaxWorkChain failed with exit status {workchain.exit_status}')
             return self.exit_codes.ERROR_SUB_PROCESS_FAILED_RELAX
 
-
         self.ctx.current_folder = workchain.outputs.remote_folder
         if 'output_structure' in workchain.outputs:
             self.ctx.current_structure = workchain.outputs.output_structure
             self.out('output_structure', workchain.outputs.output_structure)
-        
-
 
     def run_ph(self):
         """Run the PhWorkChain."""
@@ -154,7 +149,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
     def results(self):
         """Attach the desired output nodes directly as outputs of the workchain."""
         self.report('workchain succesfully completed')
-        
+
         self.out('pw_output_parameters', self.ctx.workchain_relax.outputs.output_parameters)
         self.out(
             'ph_output_parameters', self.ctx.workchain_ph.outputs.merged_output_parameters
