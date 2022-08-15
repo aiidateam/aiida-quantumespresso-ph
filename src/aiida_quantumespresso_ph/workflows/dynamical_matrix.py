@@ -6,6 +6,9 @@ from aiida.engine import ToContext, WorkChain, if_
 from aiida.plugins import CalculationFactory, WorkflowFactory
 from aiida_quantumespresso.workflows.protocols.utils import ProtocolMixin
 
+from aiida_quantumespresso.common.types import RelaxType
+
+PwRelaxWorkChain = WorkflowFactory('quantumespresso.pw.relax')
 PhBaseWorkChain = WorkflowFactory('quantumespresso.ph.base')
 PwBaseWorkChain = WorkflowFactory('quantumespresso.pw.base')
 Q2rBaseWorkChain = WorkflowFactory('quantumespresso.q2r.base')
@@ -31,25 +34,30 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
             help='`RemoteData` folder of a parent `pw.x` calculation.'
         )
 
-        spec.expose_inputs(PwBaseWorkChain, namespace='pw_base', exclude=('clean_workdir', 'pw.structure'))
+        spec.expose_inputs(PwRelaxWorkChain, namespace='relax', exclude=('clean_workdir', 'structure'))
         spec.expose_inputs(PhBaseWorkChain, namespace='ph_base', exclude=('clean_workdir', 'ph.parent_folder'))
 
         spec.outline(
             cls.setup,
-            if_(cls.should_run_pw)(
-                cls.run_pw,
-                cls.inspect_pw,
+            if_(cls.should_run_relax)(
+                cls.run_relax,
+                cls.inspect_relax,
             ),
             cls.run_ph,
             cls.results,
         )
 
+        spec.output('output_structure', valid_type=orm.StructureData,
+            required=False,
+            help='The structure for which the dynamical matrix is computed.')
         spec.output('pw_output_parameters', valid_type=orm.Dict)
         spec.output('ph_output_parameters', valid_type=orm.Dict)
         spec.output('ph_retrieved', valid_type=orm.FolderData)
 
-        spec.exit_code(401, 'ERROR_SUB_PROCESS_FAILED_PW', message='The `scf` `PwBaseWorkChain` sub process failed')
+        spec.exit_code(401, 'ERROR_SUB_PROCESS_FAILED_RELAX',
+            message='The PwRelaxWorkChain sub process failed')
 
+        
     @classmethod
     def get_protocol_filepath(cls):
         """Return ``pathlib.Path`` to the ``.yaml`` file that defines the protocols."""
@@ -74,9 +82,11 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         inputs = cls.get_protocol_inputs(protocol, overrides)
 
         args = (pw_code, structure, protocol)
-        pw_base = PwBaseWorkChain.get_builder_from_protocol(*args, overrides=inputs.get('pw_base', None), **kwargs)
-        pw_base['pw'].pop('structure', None)
-        pw_base.pop('clean_workdir', None)
+        relax = PwRelaxWorkChain.get_builder_from_protocol( *args, overrides=inputs.get('relax', None), **kwargs)
+        relax.pop('structure', None)
+        relax.pop('clean_workdir', None)
+        relax.pop('base_final_scf', None)
+
 
         args = (ph_code, None, protocol)
         ph_base = PhBaseWorkChain.get_builder_from_protocol(*args, overrides=inputs.get('ph_base', None), **kwargs)
@@ -84,43 +94,51 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
 
         builder = cls.get_builder()
         builder.structure = structure
-        builder.pw_base = pw_base
+        builder.relax = relax #pw_base = pw_base
         builder.ph_base = ph_base
         builder.clean_workdir = orm.Bool(inputs['clean_workdir'])
 
         return builder
 
     def setup(self):
-        """Initialise basic context variables."""
+        """Initialise basic context variables and get input structure."""
+        self.ctx.current_structure = self.inputs.structure
         if 'parent_folder' in self.inputs:
             self.ctx.current_folder = self.inputs.parent_folder
         else:
             self.report('no parent given')
 
-    def should_run_pw(self):
-        """Check if the work chain should run the scf ``PwBaseWorkChain``."""
+    def should_run_relax(self):
+        """Check if the work chain should run the  ``PwRelaxWorkChain`` - for either relax or scf."""
         return not 'parent_folder' in self.inputs
 
-    def run_pw(self):
-        """Run the ``PwBaseWorkChain``."""
-        inputs = AttributeDict(self.inputs.pw_base)
-        inputs.pw.structure = self.inputs.structure
+    def run_relax(self):
+        """Run the PwRelaxWorkChain to run a relax PwCalculation."""
+        inputs = AttributeDict(self.exposed_inputs(PwRelaxWorkChain, namespace='relax'))
+        inputs.metadata.call_link_label = 'relax'
+        inputs.structure = self.ctx.current_structure
 
-        workchain_node = self.submit(PwBaseWorkChain, **inputs)
+        running = self.submit(PwRelaxWorkChain, **inputs)
 
-        self.report(f'launching PwBaseWorkChain<{workchain_node.pk}>')
+        self.report(f'launching PwRelaxWorkChain<{running.pk}>')
 
-        return ToContext(workchain_pw=workchain_node)
-
-    def inspect_pw(self):
-        """Verify that the `scf` PwBaseWorkChain finished successfully."""
-        workchain = self.ctx.workchain_pw
+        return ToContext(workchain_relax=running)
+    
+    def inspect_relax(self):
+        """Verify that the PwRelaxWorkChain finished successfully."""
+        workchain = self.ctx.workchain_relax
 
         if not workchain.is_finished_ok:
-            self.report(f'scf PwBaseWorkChain failed with exit status {workchain.exit_status}')
-            return self.exit_codes.ERROR_SUB_PROCESS_FAILED_SCF
+            self.report(f'PwRelaxWorkChain failed with exit status {workchain.exit_status}')
+            return self.exit_codes.ERROR_SUB_PROCESS_FAILED_RELAX
+
 
         self.ctx.current_folder = workchain.outputs.remote_folder
+        if 'output_structure' in workchain.outputs:
+            self.ctx.current_structure = workchain.outputs.output_structure
+            self.out('output_structure', workchain.outputs.output_structure)
+        
+
 
     def run_ph(self):
         """Run the PhWorkChain."""
@@ -136,7 +154,8 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
     def results(self):
         """Attach the desired output nodes directly as outputs of the workchain."""
         self.report('workchain succesfully completed')
-        self.out('pw_output_parameters', self.ctx.workchain_ph.outputs.output_parameters)
+        
+        self.out('pw_output_parameters', self.ctx.workchain_relax.outputs.output_parameters)
         self.out(
             'ph_output_parameters', self.ctx.workchain_ph.outputs.merged_output_parameters
         )  # change name ph_merged_out & add last ph
