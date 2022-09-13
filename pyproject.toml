@@ -24,11 +24,11 @@ classifiers = [
 keywords = ['aiida', 'workflows']
 requires-python = '>=3.8'
 dependencies = [
-    'aiida-quantumespresso~=3.5',
+    'aiida-quantumespresso~=4.0',
 ]
 
 [project.urls]
-Source = 'https://github.com/mkotiuga/aiida-quantumespresso-ph'
+Source = 'https://github.com/aiidateam/aiida-quantumespresso-ph'
 
 [project.optional-dependencies]
 pre-commit = [
