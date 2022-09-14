@@ -27,8 +27,12 @@ def recollect_qpoints(**kwargs):
         index = key.split('_')[-1]
         filepath_src = dynmat_prefix
         filepath_dst = f'{dynmat_prefix}{index}'
-
-        with retrieved_folder.base.repository.open(filepath_src, 'rb') as handle:
-            merged_folder.base.repository.put_object_from_filelike(handle, filepath_dst)
+        
+        if int(index) == 0:
+            with retrieved_folder.base.repository.open(filepath_dst, 'rb') as handle:
+                merged_folder.base.repository.put_object_from_filelike(handle, filepath_dst)
+        else:
+            with retrieved_folder.base.repository.open(filepath_src, 'rb') as handle:
+                merged_folder.base.repository.put_object_from_filelike(handle, filepath_dst)
 
     return merged_folder

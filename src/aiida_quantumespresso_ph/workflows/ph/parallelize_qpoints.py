@@ -69,7 +69,8 @@ class PhParallelizeQpointsWorkChain(WorkChain):
         retrieved_folders = {'qpoint_0': self.ctx.ph_init.outputs.retrieved}
 
         for index, workchain in enumerate(self.ctx.workchains):
-            retrieved_folders[f'qpoint_{index}'] = workchain.outputs.retrieved
+            ind = index+1
+            retrieved_folders[f'qpoint_{ind}'] = workchain.outputs.retrieved
 
         self.ctx.merged_retrieved = recollect_qpoints(**retrieved_folders)
 
