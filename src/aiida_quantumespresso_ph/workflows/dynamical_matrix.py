@@ -6,6 +6,8 @@ from aiida.engine import ToContext, WorkChain, if_
 from aiida.plugins import CalculationFactory, WorkflowFactory
 from aiida_quantumespresso.workflows.protocols.utils import ProtocolMixin
 
+from aiida_quantumespresso_ph.workflows.ph.main import PhWorkChain
+
 PwRelaxWorkChain = WorkflowFactory('quantumespresso.pw.relax')
 PhBaseWorkChain = WorkflowFactory('quantumespresso.ph.base')
 PwBaseWorkChain = WorkflowFactory('quantumespresso.pw.base')
@@ -33,7 +35,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         )
 
         spec.expose_inputs(PwRelaxWorkChain, namespace='relax', exclude=('clean_workdir', 'structure'))
-        spec.expose_inputs(PhBaseWorkChain, namespace='ph_base', exclude=('clean_workdir', 'ph.parent_folder'))
+        spec.expose_inputs(PhWorkChain, namespace='ph_base', exclude=('clean_workdir', 'ph.parent_folder'))
 
         spec.outline(
             cls.setup,
@@ -87,7 +89,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         relax.pop('base_final_scf', None)
 
         args = (ph_code, None, protocol)
-        ph_base = PhBaseWorkChain.get_builder_from_protocol(*args, overrides=inputs.get('ph_base', None), **kwargs)
+        ph_base = PhWorkChain.get_builder_from_protocol(*args, overrides=inputs.get('ph_base', None), **kwargs)
         ph_base.pop('clean_workdir', None)
 
         builder = cls.get_builder()
@@ -140,7 +142,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         inputs = AttributeDict(self.inputs.ph_base)
         inputs.ph.parent_folder = self.ctx.current_folder
 
-        workchain_node = self.submit(PhBaseWorkChain, **inputs)
+        workchain_node = self.submit(PhWorkChain, **inputs)
 
         self.report(f'launching PhBaseWorkChain<{workchain_node.pk}>')
 
@@ -151,9 +153,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         self.report('workchain succesfully completed')
 
         self.out('pw_output_parameters', self.ctx.workchain_relax.outputs.output_parameters)
-        self.out(
-            'ph_output_parameters', self.ctx.workchain_ph.outputs.merged_output_parameters
-        )  # change name ph_merged_out & add last ph
+        self.out('ph_output_parameters', self.ctx.workchain_ph.outputs.output_parameters)
         self.out('ph_retrieved', self.ctx.workchain_ph.outputs.retrieved)
 
     def on_terminated(self):
