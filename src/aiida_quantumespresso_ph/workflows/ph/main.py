@@ -2,10 +2,9 @@
 """Workchain to perform a ph.x calculation with optional parallelization over q-points."""
 from aiida.engine import WorkChain, if_
 from aiida.orm import Bool, FolderData
-from aiida.plugins import WorkflowFactory
+from aiida_quantumespresso.workflows.ph.base import PhBaseWorkChain
 
-PhBaseWorkChain = WorkflowFactory('quantumespresso.ph.base')
-PhParallelizeQpointsWorkChain = WorkflowFactory('quantumespresso_ph.ph.parallelize_qpoints')
+from aiida_quantumespresso_ph.workflows.ph.parallelize_qpoints import PhParallelizeQpointsWorkChain
 
 
 class PhWorkChain(WorkChain):
@@ -30,6 +29,24 @@ class PhWorkChain(WorkChain):
         )
         spec.output('retrieved', valid_type=FolderData)
 
+    @classmethod
+    def get_builder_from_protocol(cls, code, parent_folder=None, protocol=None, overrides=None, **_):
+        """Return a builder prepopulated with inputs selected according to the chosen protocol.
+
+        :param code: the ``Code`` instance configured for the ``quantumespresso.ph`` plugin.
+        :param structure: the ``StructureData`` instance to use.
+        :param protocol: protocol to use, if not specified, the default will be used.
+        :param overrides: optional dictionary of inputs to override the defaults of the protocol.
+        :return: a process builder instance with all inputs defined ready for launch.
+        """
+        builder = PhBaseWorkChain.get_builder_from_protocol(
+            code=code, parent_folder=parent_folder, protocol=protocol, overrides=overrides
+        )
+
+        builder._process_class = cls  # pylint: disable=protected-access
+
+        return builder
+
     def should_run_parallel(self):
         """Return whether the calculation should be parallelized over the qpoints."""
         return self.inputs.parallelize_qpoints
@@ -48,6 +65,6 @@ class PhWorkChain(WorkChain):
 
     def results(self):
         """Attach results to the workchain."""
-        retrieved = self.ctx.workchain.out.retrieved
+        retrieved = self.ctx.workchain.outputs.retrieved
         self.out('retrieved', retrieved)
         self.report(f'workchain completed, output in {retrieved.__class__.__name__}<{retrieved.pk}>')
