@@ -20,7 +20,7 @@ class PhWorkChain(WorkChain):
         """Define the process specification."""
         super().define(spec)
         spec.expose_inputs(PhBaseWorkChain, exclude=('only_initialization',))
-        spec.input('parallelize_qpoints', valid_type=orm.Bool, default=lambda: orm.Bool(True))
+        spec.input('parallelize_qpoints', valid_type=orm.Bool, default=lambda: orm.Bool(False))
         spec.outline(
             if_(cls.should_run_parallel)(cls.run_parallel,).else_(
                 cls.run_serial,
@@ -45,6 +45,8 @@ class PhWorkChain(WorkChain):
         )
 
         builder._process_class = cls  # pylint: disable=protected-access
+        if 'parallelize_qpoints' in overrides:
+            builder.parallelize_qpoints = orm.Bool(overrides['parallelize_qpoints'])
 
         return builder
 
