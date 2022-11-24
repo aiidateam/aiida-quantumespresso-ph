@@ -35,7 +35,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         )
 
         spec.expose_inputs(PwRelaxWorkChain, namespace='relax', exclude=('clean_workdir', 'structure'))
-        spec.expose_inputs(PhWorkChain, namespace='ph_base', exclude=('clean_workdir', 'ph.parent_folder'))
+        spec.expose_inputs(PhWorkChain, namespace='ph_main', exclude=('clean_workdir', 'ph.parent_folder'))
 
         spec.outline(
             cls.setup,
@@ -89,13 +89,13 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         relax.pop('base_final_scf', None)
 
         args = (ph_code, None, protocol)
-        ph_base = PhWorkChain.get_builder_from_protocol(*args, overrides=inputs.get('ph_base', None), **kwargs)
-        ph_base.pop('clean_workdir', None)
+        ph_main = PhWorkChain.get_builder_from_protocol(*args, overrides=inputs.get('ph_main', None), **kwargs)
+        ph_main.pop('clean_workdir', None)
 
         builder = cls.get_builder()
         builder.structure = structure
         builder.relax = relax  #pw_base = pw_base
-        builder.ph_base = ph_base
+        builder.ph_main = ph_main
         builder.clean_workdir = orm.Bool(inputs['clean_workdir'])
 
         return builder
@@ -139,7 +139,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
 
     def run_ph(self):
         """Run the PhWorkChain."""
-        inputs = AttributeDict(self.inputs.ph_base)
+        inputs = AttributeDict(self.inputs.ph_main)
         inputs.ph.parent_folder = self.ctx.current_folder
 
         workchain_node = self.submit(PhWorkChain, **inputs)
