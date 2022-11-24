@@ -44,6 +44,7 @@ tests = [
 [project.entry-points.'aiida.calculations']
 'quantumespresso_ph.distribute_qpoints' = 'aiida_quantumespresso_ph.calculations.functions.distribute_qpoints:distribute_qpoints'
 'quantumespresso_ph.recollect_qpoints' = 'aiida_quantumespresso_ph.calculations.functions.recollect_qpoints:recollect_qpoints'
+'quantumespresso_ph.merge_para_ph_outputs' = 'aiida_quantumespresso_ph.calculations.functions.merge_para_ph_outputs:merge_para_ph_outputs'
 
 [project.entry-points.'aiida.workflows']
 'quantumespresso.dynamical_matrix' = 'aiida_quantumespresso_ph.workflows.dynamical_matrix:DynamicalMatrixWorkChain'

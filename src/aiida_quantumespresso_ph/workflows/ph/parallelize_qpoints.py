@@ -3,8 +3,9 @@
 from aiida import orm
 from aiida.engine import WorkChain, append_
 from aiida.plugins import CalculationFactory, WorkflowFactory
-from aiida_quantumespresso.calculations.functions.merge_ph_outputs import merge_ph_outputs
 import numpy
+
+from aiida_quantumespresso_ph.calculations.functions.merge_para_ph_outputs import merge_para_ph_outputs
 
 PhBaseWorkChain = WorkflowFactory('quantumespresso.ph.base')
 distribute_qpoints = CalculationFactory('quantumespresso_ph.distribute_qpoints')
@@ -84,7 +85,7 @@ class PhParallelizeQpointsWorkChain(WorkChain):
             output_dict[f'output_{ind}'] = workchain.outputs.output_parameters
 
         self.ctx.merged_retrieved = recollect_qpoints(**retrieved_folders)
-        self.ctx.merged_output_parameters = merge_ph_outputs(**output_dict)
+        self.ctx.merged_output_parameters = merge_para_ph_outputs(**output_dict)
 
     def results(self):
         """Attach the ``FolderData`` with all collected dynamical matrices as output."""
