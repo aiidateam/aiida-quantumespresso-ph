@@ -40,13 +40,19 @@ class PhWorkChain(WorkChain):
         :param overrides: optional dictionary of inputs to override the defaults of the protocol.
         :return: a process builder instance with all inputs defined ready for launch.
         """
-        builder = PhBaseWorkChain.get_builder_from_protocol(
-            code=code, parent_folder=parent_folder, protocol=protocol, overrides=overrides
-        )
+        overrides = {} if overrides is None else overrides
 
-        builder._process_class = cls  # pylint: disable=protected-access
+        data = PhBaseWorkChain.get_builder_from_protocol(  # pylint: disable=protected-access
+            code=code, parent_folder=parent_folder, protocol=protocol, overrides=overrides
+        )._data
+
+        data.pop('only_initialization', None)
+
         if 'parallelize_qpoints' in overrides:
-            builder.parallelize_qpoints = orm.Bool(overrides['parallelize_qpoints'])
+            data['parallelize_qpoints'] = orm.Bool(overrides['parallelize_qpoints'])
+
+        builder = cls.get_builder()
+        builder._data = data  # pylint: disable=protected-access
 
         return builder
 
