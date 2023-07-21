@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Workchain to perform a ph.x calculation with optional parallelization over q-points."""
+from aiida import orm
 from aiida.engine import WorkChain, if_
-from aiida.orm import Bool, FolderData
 from aiida_quantumespresso.workflows.ph.base import PhBaseWorkChain
 
 from aiida_quantumespresso_ph.workflows.ph.parallelize_qpoints import PhParallelizeQpointsWorkChain
@@ -20,14 +20,15 @@ class PhWorkChain(WorkChain):
         """Define the process specification."""
         super().define(spec)
         spec.expose_inputs(PhBaseWorkChain, exclude=('only_initialization',))
-        spec.input('parallelize_qpoints', valid_type=Bool, default=lambda: Bool(True))
+        spec.input('parallelize_qpoints', valid_type=orm.Bool, default=lambda: orm.Bool(False))
         spec.outline(
             if_(cls.should_run_parallel)(cls.run_parallel,).else_(
                 cls.run_serial,
             ),
             cls.results,
         )
-        spec.output('retrieved', valid_type=FolderData)
+        spec.output('retrieved', valid_type=orm.FolderData)
+        spec.output('output_parameters', valid_type=orm.Dict)
 
     @classmethod
     def get_builder_from_protocol(cls, code, parent_folder=None, protocol=None, overrides=None, **_):
@@ -39,11 +40,19 @@ class PhWorkChain(WorkChain):
         :param overrides: optional dictionary of inputs to override the defaults of the protocol.
         :return: a process builder instance with all inputs defined ready for launch.
         """
-        builder = PhBaseWorkChain.get_builder_from_protocol(
-            code=code, parent_folder=parent_folder, protocol=protocol, overrides=overrides
-        )
+        overrides = {} if overrides is None else overrides
 
-        builder._process_class = cls  # pylint: disable=protected-access
+        data = PhBaseWorkChain.get_builder_from_protocol(  # pylint: disable=protected-access
+            code=code, parent_folder=parent_folder, protocol=protocol, overrides=overrides
+        )._data
+
+        data.pop('only_initialization', None)
+
+        if 'parallelize_qpoints' in overrides:
+            data['parallelize_qpoints'] = orm.Bool(overrides['parallelize_qpoints'])
+
+        builder = cls.get_builder()
+        builder._data = data  # pylint: disable=protected-access
 
         return builder
 
@@ -67,4 +76,5 @@ class PhWorkChain(WorkChain):
         """Attach results to the workchain."""
         retrieved = self.ctx.workchain.outputs.retrieved
         self.out('retrieved', retrieved)
+        self.out('output_parameters', self.ctx.workchain.outputs.output_parameters)
         self.report(f'workchain completed, output in {retrieved.__class__.__name__}<{retrieved.pk}>')
