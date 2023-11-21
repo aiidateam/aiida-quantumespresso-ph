@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 """Calcfunction to split the q-point grid of a completed ``PhCalculation`` into individual q-points."""
+from typing import Dict
+
 from aiida.engine import calcfunction
-from aiida.orm import FolderData
-from aiida.plugins import CalculationFactory, DataFactory
+from aiida.orm import FolderData, KpointsData
+from aiida.plugins import CalculationFactory
 from numpy import linalg, pi
 
 
 @calcfunction
-def distribute_qpoints(retrieved):
+def distribute_qpoints(retrieved: FolderData) -> Dict[str, KpointsData]:
     """Split the q-point grid of a completed ``PhCalculation`` into individual q-points.
 
     :param retrieved: A ``FolderData`` that is the ``retrieved`` output of a ``PhCalculation``.
@@ -15,7 +17,6 @@ def distribute_qpoints(retrieved):
     """
     # pylint: disable=too-many-locals
     PhCalculation = CalculationFactory('quantumespresso.ph')
-    KpointsData = DataFactory('core.array.kpoints')
 
     if not isinstance(retrieved, FolderData):
         raise TypeError(f'The retrieved argument should be a `FolderData` object, but got: {retrieved}')
