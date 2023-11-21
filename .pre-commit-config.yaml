@@ -7,6 +7,11 @@ repos:
     -   id: fix-encoding-pragma
     -   id: mixed-line-ending
     -   id: trailing-whitespace
+        exclude: >-
+            (?x)^(
+                tests/.*.*out|
+                tests/.*.in$
+            )$
 
 -   repo: https://github.com/ikamensh/flynt/
     rev: '0.76'
@@ -14,7 +19,7 @@ repos:
     -   id: flynt
 
 -   repo: https://github.com/pycqa/isort
-    rev: '5.10.1'
+    rev: '5.12.0'
     hooks:
     -   id: isort
 
@@ -25,12 +30,18 @@ repos:
         name: yapf
         types: [python]
         args: ['-i']
+        exclude: &exclude_files >
+            (?x)^(
+                docs/.*|
+                tests/.*(?<!\.py)$
+            )$
         additional_dependencies: ['toml']
 
 -   repo: https://github.com/PyCQA/pydocstyle
     rev: '6.1.1'
     hooks:
     -   id: pydocstyle
+        exclude: *exclude_files
         additional_dependencies: ['toml']
 
 -   repo: local
@@ -38,5 +49,6 @@ repos:
     -   id: pylint
         name: pylint
         entry: pylint
-        types: [python]
         language: system
+        types: [python]
+        exclude: *exclude_files

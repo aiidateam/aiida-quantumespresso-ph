@@ -13,18 +13,19 @@ authors = [
 readme = 'README.md'
 license = {file = 'LICENSE.txt'}
 classifiers = [
-    'Development Status :: 2 - Pre-Alpha',
+    'Development Status :: 3 - Alpha',
     'Framework :: AiiDA',
     'License :: OSI Approved :: MIT License',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
 ]
 keywords = ['aiida', 'workflows']
 requires-python = '>=3.8'
 dependencies = [
-    'aiida-quantumespresso~=4.0',
+    'aiida-quantumespresso>=4.0',
 ]
 
 [project.urls]
@@ -84,9 +85,18 @@ ignore = [
 
 [tool.pylint.basic]
 good-names = [
-    'PhCalculation',
+    'i',
+    'j',
+    'k',
+    'SsspFamily',
+    'StructureData',
+    'SinglefileData',
+    'UpfData',
     'KpointsData',
     'StructureData',
+    'HpCalculation',
+    'PwCalculation',
+    'PhCalculation',
 ]
 
 [tool.pylint.master]
