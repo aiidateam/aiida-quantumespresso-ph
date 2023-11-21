@@ -2,7 +2,7 @@
 """Workchain to compute the phonon dispersion from the raw initial unrelaxed structure."""
 from aiida import orm
 from aiida.common.extendeddicts import AttributeDict
-from aiida.engine import ToContext, WorkChain, if_
+from aiida.engine import WorkChain, if_
 from aiida.plugins import CalculationFactory, WorkflowFactory
 from aiida_quantumespresso.workflows.protocols.utils import ProtocolMixin
 
@@ -44,6 +44,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
                 cls.inspect_relax,
             ),
             cls.run_ph,
+            cls.inspect_ph,
             cls.results,
         )
 
@@ -58,6 +59,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         spec.output('ph_retrieved', valid_type=orm.FolderData)
 
         spec.exit_code(401, 'ERROR_SUB_PROCESS_FAILED_RELAX', message='The PwRelaxWorkChain sub process failed')
+        spec.exit_code(402, 'ERROR_SUB_PROCESS_FAILED_PH', message='The PhWorkChain failed.')
 
     @classmethod
     def get_protocol_filepath(cls):
@@ -86,7 +88,6 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         relax = PwRelaxWorkChain.get_builder_from_protocol(*args, overrides=inputs.get('relax', None), **kwargs)
         relax.pop('structure', None)
         relax.pop('clean_workdir', None)
-        relax.pop('base_final_scf', None)
 
         args = (ph_code, None, protocol)
         ph_main = PhWorkChain.get_builder_from_protocol(*args, overrides=inputs.get('ph_main', None), **kwargs)
@@ -94,7 +95,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
 
         builder = cls.get_builder()
         builder.structure = structure
-        builder.relax = relax  #pw_base = pw_base
+        builder.relax = relax
         builder.ph_main = ph_main
         builder.clean_workdir = orm.Bool(inputs['clean_workdir'])
 
@@ -109,7 +110,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
             self.report('no parent given')
 
     def should_run_relax(self):
-        """Check if the work chain should run the  ``PwRelaxWorkChain`` - for either relax or scf."""
+        """Check if the work chain should run the  ``PwRelaxWorkChain`` for either relax or scf."""
         return not 'parent_folder' in self.inputs
 
     def run_relax(self):
@@ -118,11 +119,13 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         inputs.metadata.call_link_label = 'relax'
         inputs.structure = self.ctx.current_structure
 
-        running = self.submit(PwRelaxWorkChain, **inputs)
+        key = 'relax'
+        inputs.metadata.call_link_label = key
 
-        self.report(f'launching PwRelaxWorkChain<{running.pk}>')
+        node = self.submit(PwRelaxWorkChain, **inputs)
 
-        return ToContext(workchain_relax=running)
+        self.report(f'launching PwRelaxWorkChain<{node.pk}>')
+        self.to_context(**{'workchain_relax': node})
 
     def inspect_relax(self):
         """Verify that the PwRelaxWorkChain finished successfully."""
@@ -142,11 +145,21 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         inputs = AttributeDict(self.inputs.ph_main)
         inputs.ph.parent_folder = self.ctx.current_folder
 
-        workchain_node = self.submit(PhWorkChain, **inputs)
+        key = 'phonon'
+        inputs.metadata.call_link_label = key
 
-        self.report(f'launching PhBaseWorkChain<{workchain_node.pk}>')
+        node = self.submit(PhWorkChain, **inputs)
 
-        return ToContext(workchain_ph=workchain_node)
+        self.report(f'launching PhWorkChain<{node.pk}>')
+        self.to_context(**{'workchain_ph': node})
+
+    def inspect_ph(self):
+        """Inspect the PhWorkChain."""
+        workchain = self.ctx.workchain_ph
+
+        if not workchain.is_finished_ok:
+            self.report(f'initialization work chain {workchain} failed with status {workchain.exit_status}, aborting.')
+            return self.exit_codes.ERROR_SUB_PROCESS_FAILED_PH
 
     def results(self):
         """Attach the desired output nodes directly as outputs of the workchain."""
