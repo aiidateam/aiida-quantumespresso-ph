@@ -37,7 +37,7 @@ def generate_ph_workchain_node(generate_calc_job_node):
         if use_retrieved:
             retrieved = generate_calc_job_node(
                 'quantumespresso.ph'
-            ).outputs.retrieved  # otherwise the HpCalculation will complain
+            ).outputs.retrieved  # otherwise the PhCalculation will complain
             retrieved.base.links.add_incoming(node, link_type=LinkType.RETURN, link_label='retrieved')
 
         return node

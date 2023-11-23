@@ -61,7 +61,7 @@ class PhParallelizeQpointsWorkChain(WorkChain):
         self.to_context(ph_init=node)
 
     def inspect_init(self):
-        """Inspect the initialization `HpBaseWorkChain`."""
+        """Inspect the initialization `PhBaseWorkChain`."""
         workchain = self.ctx.ph_init
 
         if not workchain.is_finished_ok:
@@ -95,7 +95,7 @@ class PhParallelizeQpointsWorkChain(WorkChain):
             self.to_context(workchains=append_(node))
 
     def inspect_qpoints(self):
-        """Inspect each parallel qpoint `HpBaseWorkChain`."""
+        """Inspect each parallel qpoint `PhBaseWorkChain`."""
         for workchain in self.ctx.workchains:
             if not workchain.is_finished_ok:
                 self.report(f'child work chain {workchain} failed with status {workchain.exit_status}, aborting.')
