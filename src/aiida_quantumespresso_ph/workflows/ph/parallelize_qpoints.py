@@ -80,7 +80,7 @@ class PhParallelizeQpointsWorkChain(WorkChain):
         parameters = inputs.ph.parameters.get_dict()
 
         for q_point_key, qpoint in sorted(self.ctx.qpoints.items()):
-            inputs.ph.qpoints = qpoint
+            inputs.qpoints = qpoint
 
             # For `epsil` == True, only the gamma point should be calculated with this setting, see
             # https://www.quantum-espresso.org/Doc/INPUT_PH.html#idm69

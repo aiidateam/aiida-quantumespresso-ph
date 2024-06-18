@@ -168,7 +168,7 @@ def sssp(aiida_profile, generate_upf_data):  # pylint: disable=too-many-locals
                 'cutoff_rho': 240.0,
             }
 
-        label = 'SSSP/1.2/PBEsol/efficiency'
+        label = 'SSSP/1.3/PBEsol/efficiency'
         family = SsspFamily.create_from_folder(dirpath, label)
 
     family.set_cutoffs(cutoffs, stringency, unit='Ry')
@@ -435,6 +435,7 @@ def generate_inputs_dynamical_matrix(generate_inputs_pw, generate_inputs_ph, gen
         """Generate default inputs for a `DynamicalMatrixWorkChain."""
         inputs_pw = generate_inputs_pw()
         inputs_ph = generate_inputs_ph()
+        qpoints = inputs_ph.pop('qpoints')
 
         kpoints = inputs_pw.pop('kpoints')
         inputs_pw.pop('structure')
@@ -450,6 +451,7 @@ def generate_inputs_dynamical_matrix(generate_inputs_pw, generate_inputs_ph, gen
             },
             'ph_main': {
                 'ph': inputs_ph,
+                'qpoints': qpoints,
             },
         }
 

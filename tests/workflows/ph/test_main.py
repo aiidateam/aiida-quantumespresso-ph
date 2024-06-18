@@ -17,9 +17,11 @@ def generate_workchain_main(generate_workchain, generate_inputs_ph):
         entry_point = 'quantumespresso_ph.ph.main'
 
         inputs = generate_inputs_ph(inputs=inputs)
+        qpoints = inputs.pop('qpoints')
 
         workchain_inputs = {
             'ph': inputs,
+            'qpoints': qpoints,
             'parallelize_qpoints': Bool(qpoints),
         }
 

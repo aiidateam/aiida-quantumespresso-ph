@@ -1,4 +1,5 @@
 clean_workdir: false
+max_iterations: 5
 parallelize_qpoints: false
 ph:
   code: test.quantumespresso.ph@localhost
@@ -11,10 +12,5 @@ ph:
   parameters:
     INPUTPH:
       tr2_ph: 1.0e-18
-  qpoints:
-  - - 3
-    - 3
-    - 3
-  - - 0.0
-    - 0.0
-    - 0.0
+qpoints_distance: 0.3
+qpoints_force_parity: false
