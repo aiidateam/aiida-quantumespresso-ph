@@ -53,6 +53,10 @@ class PhParallelizeQpointsWorkChain(WorkChain):
 
         # Toggle the only initialization flag and define minimal resources
         inputs.only_initialization = orm.Bool(True)
+        parameters = inputs.ph.parameters.get_dict()
+        parameters['INPUTPH']['last_irr'] = 0
+        parameters['INPUTPH']['start_irr'] = 0
+        inputs.ph.parameters = orm.Dict(parameters)
         inputs.ph.metadata.options.max_wallclock_seconds = 1800
         inputs.metadata.call_link_label = 'phonon_initialization'
 
@@ -66,7 +70,7 @@ class PhParallelizeQpointsWorkChain(WorkChain):
 
         if not workchain.is_finished_ok:
             self.report(f'initialization work chain {workchain} failed with status {workchain.exit_status}, aborting.')
-            return self.exit_codes.ERROR_INITIALIZATION_WORKCHAIN_FAILED
+            return self.exit_codes.ERROR_INITIALIZATION_WORKCHAIN_FAILED  # pylint: disable=no-member
 
     def run_distribute_qpoints(self):
         """Distribute the q-points."""
@@ -99,7 +103,7 @@ class PhParallelizeQpointsWorkChain(WorkChain):
         for workchain in self.ctx.workchains:
             if not workchain.is_finished_ok:
                 self.report(f'child work chain {workchain} failed with status {workchain.exit_status}, aborting.')
-                return self.exit_codes.ERROR_QPOINT_WORKCHAIN_FAILED
+                return self.exit_codes.ERROR_QPOINT_WORKCHAIN_FAILED  # pylint: disable=no-member
 
     def run_recollect_qpoints(self):
         """Recollect the dynamical matrices from individual q-points calculations."""
