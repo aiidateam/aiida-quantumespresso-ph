@@ -111,7 +111,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
 
     def should_run_relax(self):
         """Check if the work chain should run the  ``PwRelaxWorkChain`` for either relax or scf."""
-        return not 'parent_folder' in self.inputs
+        return 'parent_folder' not in self.inputs
 
     def run_relax(self):
         """Run the PwRelaxWorkChain to run a relax PwCalculation."""
@@ -133,7 +133,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
 
         if not workchain.is_finished_ok:
             self.report(f'PwRelaxWorkChain failed with exit status {workchain.exit_status}')
-            return self.exit_codes.ERROR_SUB_PROCESS_FAILED_RELAX
+            return self.exit_codes.ERROR_SUB_PROCESS_FAILED_RELAX  # pylint: disable=no-member
 
         self.ctx.current_folder = workchain.outputs.remote_folder
         if 'output_structure' in workchain.outputs:
@@ -159,7 +159,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
 
         if not workchain.is_finished_ok:
             self.report(f'initialization work chain {workchain} failed with status {workchain.exit_status}, aborting.')
-            return self.exit_codes.ERROR_SUB_PROCESS_FAILED_PH
+            return self.exit_codes.ERROR_SUB_PROCESS_FAILED_PH  # pylint: disable=no-member
 
     def results(self):
         """Attach the desired output nodes directly as outputs of the workchain."""
