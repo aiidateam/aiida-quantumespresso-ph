@@ -416,7 +416,7 @@ def generate_inputs_ph(
             'code': fixture_code('quantumespresso.ph'),
             'parent_folder': parent.outputs.remote_folder,
             'qpoints': generate_kpoints_mesh(2),
-            'parameters': Dict({'INPUTHP': inputs or {}}),
+            'parameters': Dict({'INPUTPH': inputs or {}}),
             'metadata': {
                 'options': get_default_options()
             }
