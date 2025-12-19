@@ -58,11 +58,11 @@ P-5 project "Materials Cloud"</a></td>
 </tr>
 <tr>
     <td><a href="https://www.uni-bremen.de/u-bremen-excellence-chairs">U Bremen Excellence Chairs program</a></td>
-    <td align="center"><br/><img src="https://raw.githubusercontent.com/aiidateam/aiida-quantumespresso-ph/main/docs/source/images/UBREMEN.png" width="300px" height="35px"/><br/></td>
+    <td align="center"><br/><img src="https://raw.githubusercontent.com/aiidateam/aiida-quantumespresso-ph/main/docs/source/images/UBREMEN.png" width="300px" height="108px"/><br/></td>
 </tr>
 <tr>
     <td><a href="https://www.uni-bremen.de/en/mapex">MAPEX Center for Materials and Processes</a></td>
-    <td align="center"><br/><img src="https://raw.githubusercontent.com/aiidateam/aiida-quantumespresso-ph/main/docs/source/images/MAPEX.jpg" width="300px" height="35px"/><br/></td>
+    <td align="center"><br/><img src="https://raw.githubusercontent.com/aiidateam/aiida-quantumespresso-ph/main/docs/source/images/MAPEX.jpg" width="300px" height="99px"/><br/></td>
 </tr>
 </table>
 
