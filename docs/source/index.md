@@ -105,7 +105,7 @@ To the tutorial
 
 If you use this plugin for your research, please cite the following work:
 
-> Michele Kotiuga, Marnik Bercx, Lorenzo Bastonero, Sebastiaan P. Huber, Nicola Marzari, and Giovanni Pizzi, JOSS (2026)
+> Lorenzo Bastonero, Michele Kotiuga, Marnik Bercx, Sebastiaan P. Huber, Nicola Marzari, and Giovanni Pizzi, JOSS (2026)
 
 Please, also cite the AiiDA related works:
 
