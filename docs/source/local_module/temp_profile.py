@@ -23,6 +23,8 @@ class AiiDALoaded: # pylint: disable=too-many-instance-attributes
     computer: orm.Computer | None
     pw_code: orm.Code | None
     ph_code: orm.Code | None
+    q2r_code: orm.Code | None
+    matdyn_code: orm.Code | None
     pseudos: SsspFamily | None
     structure: orm.StructureData | None
     cpu_count: int
@@ -36,6 +38,8 @@ def load_temp_profile(
     add_computer=False,
     add_pw_code=False,
     add_ph_code=False,
+    add_q2r_code=False,
+    add_matdyn_code=False,
     add_sssp=False,
     debug=False,
     wipe_previous=True,
@@ -90,9 +94,19 @@ def load_temp_profile(
         raise RuntimeError('ph.x not found in PATH')
     phx_path = pathlib.Path(shutil.which('ph.x'))
 
+    if not shutil.which('q2r.x'):
+        raise RuntimeError('q2r.x not found in PATH')
+    q2rx_path = pathlib.Path(shutil.which('q2r.x'))
+
+    if not shutil.which('matdyn.x'):
+        raise RuntimeError('matdyn.x not found in PATH')
+    matdynx_path = pathlib.Path(shutil.which('matdyn.x'))
+
     computer = load_computer(workdir_path, cpu_count) if add_computer else None
     pw_code = load_pw_code(computer, pwx_path) if (computer and add_pw_code) else None
     ph_code = load_ph_code(computer, phx_path) if (computer and add_ph_code) else None
+    q2r_code = load_q2r_code(computer, q2rx_path) if (computer and add_q2r_code) else None
+    matdyn_code = load_matdyn_code(computer, matdynx_path) if (computer and add_matdyn_code) else None
     pseudos = load_sssp_pseudos() if add_sssp else None
     structure = None
 
@@ -101,6 +115,8 @@ def load_temp_profile(
         computer,
         pw_code,
         ph_code,
+        q2r_code,
+        matdyn_code,
         pseudos,
         structure,
         cpu_count,
@@ -159,6 +175,35 @@ def load_ph_code(computer, exec_path: pathlib.Path):
         code.store()
     return code
 
+def load_q2r_code(computer, exec_path: pathlib.Path):
+    """Idempotent function to add the code to the database."""
+    try:
+        code = orm.load_code('q2r@localhost')
+    except: # pylint: disable=bare-except
+        code = orm.Code(
+            input_plugin_name='quantumespresso.q2r',
+            remote_computer_exec=[computer, str(exec_path)],
+        )
+        code.label = 'q2r'
+        code.description = 'q2r.x code on local computer'
+        code.set_prepend_text('export OMP_NUM_THREADS=1')
+        code.store()
+    return code
+
+def load_matdyn_code(computer, exec_path: pathlib.Path):
+    """Idempotent function to add the code to the database."""
+    try:
+        code = orm.load_code('matdyn@localhost')
+    except: # pylint: disable=bare-except
+        code = orm.Code(
+            input_plugin_name='quantumespresso.matdyn',
+            remote_computer_exec=[computer, str(exec_path)],
+        )
+        code.label = 'matdyn'
+        code.description = 'matdyn.x code on local computer'
+        code.set_prepend_text('export OMP_NUM_THREADS=1')
+        code.store()
+    return code
 
 def load_sssp_pseudos(version='1.3', functional='PBEsol', protocol='efficiency'):
     """Load the SSSP pseudopotentials."""
