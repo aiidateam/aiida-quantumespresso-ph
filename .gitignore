@@ -109,3 +109,5 @@ ENV/
 .DS_Store
 .idea
 submit_test/
+_aiida_*
+sssp_pseudos
