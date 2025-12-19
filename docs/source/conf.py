@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # aiida-wannier90 documentation build configuration file, created by
 # sphinx-quickstart on Fri Oct 10 02:14:52 2014.
@@ -47,7 +48,7 @@ extensions = [
 
 # Setting the intersphinx mapping to other readthedocs
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3.9', None),
+    'python': ('https://docs.python.org/3.10', None),
     'aiida': ('https://aiida.readthedocs.io/projects/aiida-core/en/latest/', None),
     'aiida_pseudo': ('http://aiida-pseudo.readthedocs.io/en/latest/', None),
     'pymatgen': ('https://pymatgen.org/', None),

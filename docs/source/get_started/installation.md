@@ -100,7 +100,7 @@ The table assumes the user always install the latest patch release of the specif
 
 | Plugin | AiiDA | Python | Quantum ESPRESSO |
 |-|-|-|-|
-| `v0.1 < v1.0` | ![Compatibility for v4.0][AiiDA v4.0-pydantic2] |  [![PyPI pyversions][Python v3.9-v3.12]](https://pypi.org/project/aiida-quantumespresso-ph/4.16.0/) | ![Quantum ESPRESSO compatibility][QE v6.6-7.5] |
+| `v0.1 < v1.0` | ![Compatibility for v4.0][AiiDA v4.0-pydantic2] |  [![PyPI pyversions][Python v3.10-v3.14]](https://pypi.org/project/aiida-quantumespresso-ph/4.16.0/) | ![Quantum ESPRESSO compatibility][QE v6.6-7.5] |
 
 [Python v3.10-v3.14]: https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue
 [Python v3.9-v3.12]: https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue
