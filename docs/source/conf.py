@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # aiida-wannier90 documentation build configuration file, created by
 # sphinx-quickstart on Fri Oct 10 02:14:52 2014.

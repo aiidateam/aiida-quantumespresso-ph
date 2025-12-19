@@ -1,6 +1,6 @@
 (howto-workflows-dynmat)=
 
-# Calculate the dynamical matrix 
+# Calculate the dynamical matrix
 
 The `DynamicalMatrixWorkChain` is designed to compute the phonons on a _q_-point grid for a given structure using Quantum ESPRESSO's `pw.x` and `ph.x`.
 It automates the complete workflow, starting from a (optionally unrelaxed) structure, exploiting the DFPT capabilities for parallelizing independent *q*-points as simultaneous `PhBaseWorkChain`.

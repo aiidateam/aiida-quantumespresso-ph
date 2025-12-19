@@ -88,7 +88,7 @@ The thresholds for electronic and ionic convergence are the following:
 | `balanced`    | 2e-10                | 1e-5                    | 1e-4              |
 | `stringent`   | 1e-10                | 5e-6                    | 5e-5              |
 
-## Magnetism 
+## Magnetism
 
 ```{note}
 See the `aiida-quantumespresso` tutorial on magnetic calculations for an introduction on how to work with magnetism.
@@ -101,8 +101,7 @@ The `get_builder_from_protocol()` method supports defining the type of magnetic 
   Each kind is initialized in a high-spin ferromagnetic configuration, where elements with partially occupied $d$ or $f$ orbitals are assigned a magnetic moment of 5 $\mu_B$ or 7 $\mu_B$, respectively.
   For all other elements, the electrons are initialized to have a 10% surplus in the spin-up channel ([`starting_magnetization`](https://www.quantum-espresso.org/Doc/INPUT_PW.html#id50) = 0.1).
 - `SpinType.NON_COLLINEAR`: Non-collinear spin-polarised calculation ([`noncolin`](https://www.quantum-espresso.org/Doc/INPUT_PW.html#id79) = `True`, [`nspin`](https://www.quantum-espresso.org/Doc/INPUT_PW.html#id73) = 4).
-  The size of the magnetic vector ([`starting_magnetization`](https://www.quantum-espresso.org/Doc/INPUT_PW.html#id50)) is set to the same value as the collinear case, and both angles ([`angle1`](https://www.quantum-espresso.org/Doc/INPUT_PW.html#id104) and [`angle2`](https://www.quantum-espresso.org/Doc/INPUT_PW.html#id105)) are set to zero. 
+  The size of the magnetic vector ([`starting_magnetization`](https://www.quantum-espresso.org/Doc/INPUT_PW.html#id50)) is set to the same value as the collinear case, and both angles ([`angle1`](https://www.quantum-espresso.org/Doc/INPUT_PW.html#id104) and [`angle2`](https://www.quantum-espresso.org/Doc/INPUT_PW.html#id105)) are set to zero.
   We also use the fully relativistic PBEsol pseudopotentials from [the Pseudo Dojo](https://www.pseudo-dojo.org/) (`PseudoDojo/0.4/PBEsol/FR/standard/upf` family).
 - `SpinType.SPIN_ORBIT`: Non-collinear spin-polarised calculation including spin-orbit [`lspinorb`](https://www.quantum-espresso.org/Doc/INPUT_PW.html#id111).
   The ([`starting_magnetization`](https://www.quantum-espresso.org/Doc/INPUT_PW.html#id50)) and angles are initialised using the same approach as for `SpinType.NON_COLLINEAR`.
-  

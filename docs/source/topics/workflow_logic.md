@@ -23,7 +23,7 @@ The `PhWorkChain` consist of two main components:
 
 
 ## `PhInterpolateWorkChain`
-**Purpose:** Interpolate a phonon disperion in an arbitrary path; used for obtaining phonon band structure. 
+**Purpose:** Interpolate a phonon disperion in an arbitrary path; used for obtaining phonon band structure.
 
 The `PhInterpolateWorkChain` consist of two main components:
 

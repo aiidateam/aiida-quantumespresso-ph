@@ -39,5 +39,3 @@ Here you'll learn how to compute the dynamical matrix using the `pw.x` and `ph.x
   - {{ aiida_logo }} [Beginner]{.aiida-green}
 ::::
 :::
-
-

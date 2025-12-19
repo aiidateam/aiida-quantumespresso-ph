@@ -158,7 +158,7 @@ For most releases, we assume that all the changes in the current `main` branch h
 The next step is to update the `CHANGELOG.md` with all the changes made since the last release.
 First, update the source code `__version__` in the following file by hand:
 
-- `src/aiida_quantumespresso_ph/__init__.py` 
+- `src/aiida_quantumespresso_ph/__init__.py`
 
 Then, run the `update_changelog.py` script:
 
