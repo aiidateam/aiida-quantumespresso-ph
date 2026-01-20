@@ -15,6 +15,7 @@ MatdynBaseWorkChain = WorkflowFactory('quantumespresso.matdyn.base')
 PhCalculation = CalculationFactory('quantumespresso.ph')
 
 
+
 class PhInterpolateWorkChain(WorkChain):
     """Workchain to compute the interpolation steps for a phonon dispersion from the already computed Dyn mat."""
 
@@ -75,5 +76,11 @@ class PhInterpolateWorkChain(WorkChain):
         """Run the final step after computing the dispersion steps."""
         matdyn_calc = self.ctx.workflow_matdyn
 
+        # Output parameters as is
         self.out('output_parameters', matdyn_calc.outputs.output_parameters)
-        self.out('output_phonon_bands', matdyn_calc.outputs.output_phonon_bands)
+
+        # Output phonon bands from matdyn calculation
+        if 'output_phonon_bands' in matdyn_calc.outputs:
+            self.out('output_phonon_bands', matdyn_calc.outputs.output_phonon_bands)
+        else:
+            self.report('Warning: Matdyn calculation did not produce output_phonon_bands.')

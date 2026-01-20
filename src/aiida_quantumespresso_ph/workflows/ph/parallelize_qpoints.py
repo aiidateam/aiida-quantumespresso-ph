@@ -8,6 +8,7 @@ import numpy
 
 from aiida_quantumespresso_ph.calculations.functions.merge_para_ph_outputs import merge_para_ph_outputs
 
+
 PhBaseWorkChain = WorkflowFactory('quantumespresso.ph.base')
 distribute_qpoints = CalculationFactory('quantumespresso_ph.distribute_qpoints')
 recollect_qpoints = CalculationFactory('quantumespresso_ph.recollect_qpoints')
