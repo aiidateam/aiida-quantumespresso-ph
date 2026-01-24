@@ -54,7 +54,7 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
             required=False,
             help='The structure for which the dynamical matrix is computed.'
         )
-        spec.output('pw_output_parameters', valid_type=orm.Dict)
+        spec.output('pw_output_parameters', valid_type=orm.Dict, required=False)
         spec.output('ph_output_parameters', valid_type=orm.Dict)
         spec.output('ph_retrieved', valid_type=orm.FolderData)
 
@@ -165,7 +165,8 @@ class DynamicalMatrixWorkChain(ProtocolMixin, WorkChain):
         """Attach the desired output nodes directly as outputs of the workchain."""
         self.report('workchain succesfully completed')
 
-        self.out('pw_output_parameters', self.ctx.workchain_relax.outputs.output_parameters)
+        if 'workchain_relax' in self.ctx:
+            self.out('pw_output_parameters', self.ctx.workchain_relax.outputs.output_parameters)
         self.out('ph_output_parameters', self.ctx.workchain_ph.outputs.output_parameters)
         self.out('ph_retrieved', self.ctx.workchain_ph.outputs.retrieved)
 
